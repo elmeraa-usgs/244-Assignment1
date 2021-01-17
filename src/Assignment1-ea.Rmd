@@ -1,0 +1,71 @@
+---
+title: "Assignment 1, Task 1"
+author: "Elmera Azadpour"
+date: "1/15/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(readxl)
+library(here)
+library(lubridate)
+library(patchwork)
+```
+
+
+```{r, echo = FALSE, error = FALSE, warning=FALSE, message=FALSE, include = FALSE}
+## read in Sierra amphibians dataset (provided by The Sierra Lakes Inventory Project)
+amphibians <- read_excel(here("data","sierra_amphibians.xlsx"))
+```
+
+```{r, echo = FALSE, error = FALSE, warning=FALSE, message=FALSE, include = FALSE}
+## graph of total mountain yellow-legged frog (Rana muscosa) count each year across all water bodies
+amphibian_grouped <- amphibians %>% 
+  rename(date = survey_date) %>% 
+  mutate(date = ymd(date)) %>% 
+  mutate(record_year = year(date)) %>% 
+  select(lake_id, amphibian_species, amphibian_life_stage, amphibian_location, record_year) %>% 
+  filter(amphibian_species =="RAMU") %>% 
+  filter(!amphibian_life_stage =="EggMass") %>% #exclude EggMass level
+  group_by(record_year, amphibian_life_stage) %>% 
+  count()
+
+plot1 <- ggplot(amphibian_grouped, 
+                aes(x = record_year, y = n)) + 
+  geom_line(aes(col = amphibian_life_stage)) +
+  labs(y = "Count", x = "Year") +
+  scale_color_discrete(name = "Amphibian Life Stage",
+                       labels = c("Adult", "Sub Adult", "Tadpole")) +
+  theme_minimal() +
+  theme(legend.position= "top")
+```
+
+```{r, echo = FALSE, error = FALSE, warning=FALSE, message=FALSE, include = FALSE}
+## column graph containing total counts of combined adult and subadult endangered mountain yellow-legged frogs (Rana muscosa) observed in the 5 lakes with the greatest total observed counts.
+amphibians_greatest_counts <- amphibians %>% 
+  mutate(lake = c("Lake")) %>% 
+  unite(col = lake_id,
+        c(lake, lake_id), 
+        sep = " " ) %>% 
+  filter(!amphibian_life_stage =="Tadpole") %>% 
+  filter(amphibian_species =="RAMU") %>% 
+  select(lake_id, amphibian_life_stage) %>% 
+  group_by(lake_id) %>% 
+  summarize(count = n()) %>% 
+  slice_max(count, n = 5)
+
+plot2 <- ggplot(amphibians_greatest_counts, 
+       aes(x =  fct_reorder(lake_id, count), y = count)) +
+  geom_col(fill = "dark green", col = "black") +
+labs(y = "Total counts adult and subadult Rana muscosa frogs ", 
+     x = "Lake ID") +
+  coord_flip() +
+  theme_minimal()
+```
+
+```{r, fig.cap = "**Figure 1**. (A) total mountain yellow-legged frog (*Rana muscosa*) count each year across all bodies of water, by life stage excluding ‘EggMass’ level (B) total counts of combined adult and subadult *Rana muscosa* observed in five lakes with the greatest total observed counts", fig.width= 10, echo = FALSE, error = FALSE, warning=FALSE, message=FALSE}
+plot1 / plot2 + plot_annotation(tag_levels = 'A')
+```

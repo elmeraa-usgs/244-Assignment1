@@ -1,0 +1,54 @@
+---
+title: "Assignemnt 1, Task 2 PCA"
+author: "Elmera Azadpour"
+date: "1/16/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(here)
+library(readxl)
+library(ggfortify) # for PCA
+library(patchwork)
+```
+
+## Read in 'world_env_vars.csv'
+```{r}
+world_df <- read.csv(here("data","world_env_vars.csv")) %>% 
+  clean_names()
+```
+
+## wrangling and PCA
+```{r}
+world_pca <- world_df %>% 
+  select(elevation, ends_with("_quart")) %>%
+  filter(elevation > 1200) %>% 
+  drop_na() %>% 
+  scale() %>%
+  prcomp()
+
+world_complete <- world_df %>% 
+  drop_na(elevation, ends_with("_quart")) %>% 
+  filter(elevation > 1200)
+
+autoplot(world_pca,
+         data = world_complete,
+         loadings = TRUE,
+         colour = 'country',
+         loadings.label = TRUE,
+         loadings.colour = "black",
+         loadings.label.colour = "black",
+         loadings.label.vjust = -0.5
+         ) + 
+  scale_colour_discrete(name = "Country") +
+  theme_minimal() + 
+  theme(legend.position="top")
+
+screeplot(world_pca, type = "lines")
+
+world_pca$rotation
+```
+
