@@ -15,14 +15,12 @@ library(lubridate)
 library(patchwork)
 ```
 
-
-```{r, echo = FALSE, error = FALSE, warning=FALSE, message=FALSE, include = FALSE}
-## read in Sierra amphibians dataset (provided by The Sierra Lakes Inventory Project)
+### read in Sierra amphibians dataset (provided by The Sierra Lakes Inventory Project)
+```{r, echo = TRUE, error = FALSE, warning=FALSE, message=FALSE}
 amphibians <- read_excel(here("data","sierra_amphibians.xlsx"))
 ```
-
-```{r, echo = FALSE, error = FALSE, warning=FALSE, message=FALSE, include = FALSE}
-## graph of total mountain yellow-legged frog (Rana muscosa) count each year across all water bodies
+### Graph of total mountain yellow-legged frog (Rana muscosa) count each year across all water bodies
+```{r, echo = TRUE, error = FALSE, warning=FALSE, message=FALSE}
 amphibian_grouped <- amphibians %>% 
   rename(date = survey_date) %>% 
   mutate(date = ymd(date)) %>% 
@@ -43,8 +41,8 @@ plot1 <- ggplot(amphibian_grouped,
   theme(legend.position= "top")
 ```
 
-```{r, echo = FALSE, error = FALSE, warning=FALSE, message=FALSE, include = FALSE}
-## column graph containing total counts of combined adult and subadult endangered mountain yellow-legged frogs (Rana muscosa) observed in the 5 lakes with the greatest total observed counts.
+### Column graph containing total counts of combined adult and subadult endangered mountain yellow-legged frogs (Rana muscosa) observed in the 5 lakes with the greatest total observed counts
+```{r, echo = TRUE, error = FALSE, warning=FALSE, message=FALSE}
 amphibians_greatest_counts <- amphibians %>% 
   mutate(lake = c("Lake")) %>% 
   unite(col = lake_id,
@@ -66,6 +64,7 @@ labs(y = "Total counts adult and subadult Rana muscosa frogs ",
   theme_minimal()
 ```
 
-```{r, fig.cap = "**Figure 1**. (A) total mountain yellow-legged frog (*Rana muscosa*) count each year across all bodies of water, by life stage excluding ‘EggMass’ level (B) total counts of combined adult and subadult *Rana muscosa* observed in five lakes with the greatest total observed counts", fig.width= 10, echo = FALSE, error = FALSE, warning=FALSE, message=FALSE}
+### Patchworked graph
+```{r, fig.cap = "**Figure 1**. (A) total mountain yellow-legged frog (*Rana muscosa*) count each year across all bodies of water, by life stage excluding ‘EggMass’ level (B) total counts of combined adult and subadult *Rana muscosa* observed in five lakes with the greatest total observed counts", fig.width= 10, echo = TRUE, error = FALSE, warning=FALSE, message=FALSE}
 plot1 / plot2 + plot_annotation(tag_levels = 'A')
 ```
